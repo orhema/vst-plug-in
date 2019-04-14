@@ -11,16 +11,17 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-
+#define VOL_ID "vol"
+#define VOL_NAME "vol"
 //==============================================================================
 /**
 */
-class ThejuiceAudioProcessor  : public AudioProcessor
+class MyvstAudioProcessor  : public AudioProcessor
 {
 public:
     //==============================================================================
-    ThejuiceAudioProcessor();
-    ~ThejuiceAudioProcessor();
+    MyvstAudioProcessor();
+    ~MyvstAudioProcessor();
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -55,7 +56,13 @@ public:
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+	float rawVolValue;
+	AudioProcessorValueTreeState treestate;
+	AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+
+	float previousVol;
 private:
+	
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ThejuiceAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MyvstAudioProcessor)
 };

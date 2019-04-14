@@ -16,20 +16,24 @@
 //==============================================================================
 /**
 */
-class ThejuiceAudioProcessorEditor  : public AudioProcessorEditor
+class MyvstAudioProcessorEditor  : public AudioProcessorEditor,
+									public Slider::Listener
 {
 public:
-    ThejuiceAudioProcessorEditor (ThejuiceAudioProcessor&);
-    ~ThejuiceAudioProcessorEditor();
+    MyvstAudioProcessorEditor (MyvstAudioProcessor&);
+    ~MyvstAudioProcessorEditor();
 
     //==============================================================================
     void paint (Graphics&) override;
     void resized() override;
-
+	void sliderValueChanged(Slider* slider) override;
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
-    ThejuiceAudioProcessor& processor;
+    MyvstAudioProcessor& processor;
+	Slider volSlider;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ThejuiceAudioProcessorEditor)
+public:
+	std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> sliderValue;
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MyvstAudioProcessorEditor)
 };

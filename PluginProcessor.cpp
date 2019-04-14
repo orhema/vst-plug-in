@@ -12,7 +12,7 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-ThejuiceAudioProcessor::ThejuiceAudioProcessor()
+MyvstAudioProcessor::MyvstAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
      : AudioProcessor (BusesProperties()
                      #if ! JucePlugin_IsMidiEffect
@@ -21,22 +21,35 @@ ThejuiceAudioProcessor::ThejuiceAudioProcessor()
                       #endif
                        .withOutput ("Output", AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ),
+treestate (*this, nullptr, "PARAMETER", createParameterLayout())
 #endif
 {
+	
 }
 
-ThejuiceAudioProcessor::~ThejuiceAudioProcessor()
+MyvstAudioProcessor::~MyvstAudioProcessor()
 {
 }
 
 //==============================================================================
-const String ThejuiceAudioProcessor::getName() const
+AudioProcessorValueTreeState::ParameterLayout MyvstAudioProcessor::createParameterLayout()
+{
+	std::vector <std::unique_ptr<RangedAudioParameter>> params;
+
+	auto volParam = std::make_unique<AudioParameterFloat>(VOL_ID, VOL_NAME, -49.0f, 0.0f, -14.0f);
+
+	params.push_back(std::move(volParam));
+
+	return { params.begin(), params.end() };
+}
+
+const String MyvstAudioProcessor::getName() const
 {
     return JucePlugin_Name;
 }
 
-bool ThejuiceAudioProcessor::acceptsMidi() const
+bool MyvstAudioProcessor::acceptsMidi() const
 {
    #if JucePlugin_WantsMidiInput
     return true;
@@ -45,7 +58,7 @@ bool ThejuiceAudioProcessor::acceptsMidi() const
    #endif
 }
 
-bool ThejuiceAudioProcessor::producesMidi() const
+bool MyvstAudioProcessor::producesMidi() const
 {
    #if JucePlugin_ProducesMidiOutput
     return true;
@@ -54,7 +67,7 @@ bool ThejuiceAudioProcessor::producesMidi() const
    #endif
 }
 
-bool ThejuiceAudioProcessor::isMidiEffect() const
+bool MyvstAudioProcessor::isMidiEffect() const
 {
    #if JucePlugin_IsMidiEffect
     return true;
@@ -63,50 +76,50 @@ bool ThejuiceAudioProcessor::isMidiEffect() const
    #endif
 }
 
-double ThejuiceAudioProcessor::getTailLengthSeconds() const
+double MyvstAudioProcessor::getTailLengthSeconds() const
 {
     return 0.0;
 }
 
-int ThejuiceAudioProcessor::getNumPrograms()
+int MyvstAudioProcessor::getNumPrograms()
 {
     return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
                 // so this should be at least 1, even if you're not really implementing programs.
 }
 
-int ThejuiceAudioProcessor::getCurrentProgram()
+int MyvstAudioProcessor::getCurrentProgram()
 {
     return 0;
 }
 
-void ThejuiceAudioProcessor::setCurrentProgram (int index)
+void MyvstAudioProcessor::setCurrentProgram (int index)
 {
 }
 
-const String ThejuiceAudioProcessor::getProgramName (int index)
+const String MyvstAudioProcessor::getProgramName (int index)
 {
     return {};
 }
 
-void ThejuiceAudioProcessor::changeProgramName (int index, const String& newName)
+void MyvstAudioProcessor::changeProgramName (int index, const String& newName)
 {
 }
 
 //==============================================================================
-void ThejuiceAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void MyvstAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
 }
 
-void ThejuiceAudioProcessor::releaseResources()
+void MyvstAudioProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool ThejuiceAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool MyvstAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
   #if JucePlugin_IsMidiEffect
     ignoreUnused (layouts);
@@ -129,11 +142,14 @@ bool ThejuiceAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts)
 }
 #endif
 
-void ThejuiceAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
+void MyvstAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
     ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
+
+	//rawVolume = 0.014;
+
 
     // In case we have more outputs than inputs, this code clears any output
     // channels that didn't contain input data, (because these aren't
@@ -141,6 +157,7 @@ void ThejuiceAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
     // This is here to avoid people getting screaming feedback
     // when they first compile a plugin, but obviously you don't need to keep
     // this code if your algorithm always overwrites all the output channels.
+
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
@@ -154,38 +171,48 @@ void ThejuiceAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
     {
         auto* channelData = buffer.getWritePointer (channel);
 
+		for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+		{
+			channelData[sample] = buffer.getSample(channel, sample) * rawVolValue;
+		}
+
         // ..do something to the data...
     }
 }
 
 //==============================================================================
-bool ThejuiceAudioProcessor::hasEditor() const
+bool MyvstAudioProcessor::hasEditor() const
 {
     return true; // (change this to false if you choose to not supply an editor)
 }
 
-AudioProcessorEditor* ThejuiceAudioProcessor::createEditor()
+AudioProcessorEditor* MyvstAudioProcessor::createEditor()
 {
-    return new ThejuiceAudioProcessorEditor (*this);
+    return new MyvstAudioProcessorEditor (*this);
 }
 
 //==============================================================================
-void ThejuiceAudioProcessor::getStateInformation (MemoryBlock& destData)
+void MyvstAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
 }
 
-void ThejuiceAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+void MyvstAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+}
+
+AudioProcessorValueTreeState::ParameterLayout MyvstAudioProcessor::createParameterLayout()
+{
+	return AudioProcessorValueTreeState::ParameterLayout();
 }
 
 //==============================================================================
 // This creates new instances of the plugin..
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-    return new ThejuiceAudioProcessor();
+    return new MyvstAudioProcessor();
 }

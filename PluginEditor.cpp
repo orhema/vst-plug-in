@@ -12,31 +12,41 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-RowdyVstAudioProcessorEditor::RowdyVstAudioProcessorEditor (RowdyVstAudioProcessor& p)
+MyvstAudioProcessorEditor::MyvstAudioProcessorEditor (MyvstAudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (400, 300);
+    
+
+
+	sliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treestate, VOL_ID, volSlider);
+	setSize (490, 490);
+	volSlider.setSliderStyle(Slider::SliderStyle::LinearVertical);
+	volSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 140, 28);
+	volSlider.setRange(-49.0f, 0.0f);
+	volSlider.setValue(-14.0f);
+	volSlider.addListener(this);
+	addAndMakeVisible(volSlider);
 }
 
-RowdyVstAudioProcessorEditor::~RowdyVstAudioProcessorEditor()
+MyvstAudioProcessorEditor::~MyvstAudioProcessorEditor()
 {
 }
 
 //==============================================================================
-void RowdyVstAudioProcessorEditor::paint (Graphics& g)
+void MyvstAudioProcessorEditor::paint (Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
 
-    g.setColour (Colours::white);
-    g.setFont (15.0f);
-    g.drawFittedText ("Hello World!", getLocalBounds(), Justification::centred, 1);
+    
 }
 
-void RowdyVstAudioProcessorEditor::resized()
+void MyvstAudioProcessorEditor::resized()
 {
-    // This is generally where you'll want to lay out the positions of any
+	volSlider.setBounds(getLocalBounds());
+	
+	// This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
 }
