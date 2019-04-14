@@ -12,7 +12,7 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-ThejuiceAudioProcessorEditor::ThejuiceAudioProcessorEditor (ThejuiceAudioProcessor& p)
+RowdyVstAudioProcessorEditor::RowdyVstAudioProcessorEditor (RowdyVstAudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
 {
     // Make sure that before the constructor has finished, you've set the
@@ -20,12 +20,12 @@ ThejuiceAudioProcessorEditor::ThejuiceAudioProcessorEditor (ThejuiceAudioProcess
     setSize (400, 300);
 }
 
-ThejuiceAudioProcessorEditor::~ThejuiceAudioProcessorEditor()
+RowdyVstAudioProcessorEditor::~RowdyVstAudioProcessorEditor()
 {
 }
 
 //==============================================================================
-void ThejuiceAudioProcessorEditor::paint (Graphics& g)
+void RowdyVstAudioProcessorEditor::paint (Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
@@ -35,7 +35,7 @@ void ThejuiceAudioProcessorEditor::paint (Graphics& g)
     g.drawFittedText ("Hello World!", getLocalBounds(), Justification::centred, 1);
 }
 
-void ThejuiceAudioProcessorEditor::resized()
+void RowdyVstAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
